@@ -162,12 +162,19 @@ python -m backend.main
 ### Option B: Uvicorn with Hot Reload
 
 ```bash
-uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### Option C: Production Server (Multi-Worker)
+### Option C: Production Server (Linux / Docker multi-worker)
+
+> [!NOTE]
+> On Windows, Uvicorn multi-worker mode (`--workers 2`) is restricted by the Windows OS socket sharing architecture (`WinError 10022`). On Windows, run single-process or use Docker for multi-worker setups:
 
 ```bash
+# Windows:
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+
+# Linux / Docker container:
 uvicorn backend.main:app --host 0.0.0.0 --port 8000 --workers 2
 ```
 
