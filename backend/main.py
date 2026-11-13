@@ -423,7 +423,7 @@ def chat(
     payload: ChatRequest,
     session: Session = Depends(get_session),
 ):
-    rows = session.exec(select(ScanLog).order_by(ScanLog.timestamp.desc()).limit(3)).all()
+    rows = session.exec(select(ScanLog).order_by(ScanLog.timestamp.desc()).limit(10)).all()
     context = [{"url": html.escape(r.url), "status": r.status, "risk_score": r.risk_score} for r in rows]
     try:
         return {"reply": ask_qwen(payload.message, context)}

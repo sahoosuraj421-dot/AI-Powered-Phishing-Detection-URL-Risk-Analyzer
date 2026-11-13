@@ -196,24 +196,6 @@
               </div>
             </div>
           </div>
-
-          <!-- AI Chat Sidebar -->
-          <div class="chat-pane" role="complementary" aria-label="AI Security Advisor">
-            <div class="chat-header">
-              <h3>🤖 Security Advisor</h3>
-              <p>Powered by Qwen2.5-7B · knows your last 3 scans</p>
-            </div>
-            <div id="chat-log" class="chat-log" aria-live="polite" aria-label="Chat messages">
-              <div class="bubble bubble-ai">Ask me why a link looks risky, what to do if you clicked it, or how to spot phishing emails.</div>
-            </div>
-            <form id="chat-form" class="chat-input-row" novalidate>
-              <label for="chat-input" class="sr-only" style="position:absolute;left:-9999px;">Message</label>
-              <input id="chat-input" type="text" maxlength="500" autocomplete="off"
-                     placeholder="Ask about a link or email…"
-                     class="inp-plain" style="flex:1;" aria-label="Chat message">
-              <button id="chat-btn" type="submit" class="btn btn-primary btn-sm">Send</button>
-            </form>
-          </div>
         </div>
 
         <!-- Recent Scans -->
@@ -564,6 +546,34 @@ Content-Type: application/json
        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
     </p>
   </footer>
+</div>
+
+<!-- Floating Security Advisor Widget -->
+<div id="advisor-widget" class="advisor-widget-container">
+  <div id="advisor-window" class="advisor-window hidden shadow-xl">
+    <div class="advisor-header">
+      <div class="flex items-center gap-2">
+        <span class="advisor-icon">🛡️</span>
+        <div>
+          <h3 style="font-size: .92rem; font-weight: 700; color: #ffffff;">Security Advisor</h3>
+          <p style="font-size: .72rem; color: var(--text-muted);">Qwen2.5-7B · Context-aware across last 10 scans</p>
+        </div>
+      </div>
+      <button id="advisor-close-btn" class="advisor-close" aria-label="Close advisor">&times;</button>
+    </div>
+    <div id="chat-log" class="chat-log" aria-live="polite">
+      <div class="bubble bubble-ai">Hello! I am your AI Security Advisor. Ask me anything about suspicious links, how to spot phishing, or incident response steps.</div>
+    </div>
+    <form id="chat-form" class="chat-input-row" novalidate>
+      <input id="chat-input" type="text" maxlength="500" autocomplete="off"
+             placeholder="Ask security advisor…" class="inp-plain" style="flex:1;" aria-label="Chat message">
+      <button id="chat-btn" type="submit" class="btn btn-primary btn-sm">Send</button>
+    </form>
+  </div>
+  <button id="advisor-trigger-btn" class="advisor-fab" aria-label="Open AI Security Advisor" title="AI Security Advisor">
+    <span class="fab-icon">🤖</span>
+    <span class="fab-pulse"></span>
+  </button>
 </div>
 
 <!-- Toast container -->

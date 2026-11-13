@@ -607,6 +607,22 @@ $("contact-form") && $("contact-form").addEventListener("submit", (e) => {
   $("contact-form").reset();
 });
 
+// ─── Floating Advisor Widget ──────────────────────────────────────────────────
+$("advisor-trigger-btn") && $("advisor-trigger-btn").addEventListener("click", () => {
+  const win = $("advisor-window");
+  if (!win) return;
+  win.classList.toggle("hidden");
+  if (!win.classList.contains("hidden")) {
+    const input = $("chat-input");
+    if (input) input.focus();
+  }
+});
+
+$("advisor-close-btn") && $("advisor-close-btn").addEventListener("click", () => {
+  const win = $("advisor-window");
+  if (win) win.classList.add("hidden");
+});
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 tryRestoreSession();
 loadHistory();
