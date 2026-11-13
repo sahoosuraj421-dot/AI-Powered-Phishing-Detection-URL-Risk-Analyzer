@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  tripwire:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    image: tripwire-phishing-detector:latest
+    container_name: tripwire
+    restart: unless-stopped
+
+    ports:
+      - "8000:8000"
+
+    # Mount a named volume so the SQLite database persists across restarts
+    volumes:
+      - tripwire-data:/data
+
+    # Load secrets from a .env file on the host (never bake secrets into the image)
+    env_file:
+      - .env
+
+    environment:
+      # Override database path to use the persistent volume
+      - DATABASE_URL=sqlite:////data/phishing.db
+      # Adjust CORS if you deploy behind a reverse proxy with a different origin
+      - ALLOWED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+
+    # Resource limits (tune for your deployment)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  tripwire-data:
+    driver: local

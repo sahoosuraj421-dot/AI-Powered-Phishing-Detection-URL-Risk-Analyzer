@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tripwire – AI Phishing Detector</title>
+  <meta name="description" content="Real-time AI-powered phishing detection. Scan URLs, analyse emails, and get instant threat intelligence to stay safe online.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- ══ Navbar ══════════════════════════════════════════════════════════════ -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <a href="#" class="nav-brand" id="brand-link" aria-label="Tripwire Home">
+      <div class="brand-icon" aria-hidden="true">🛡</div>
+      Tripwire
+    </a>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#" class="nav-link active" data-page="home" id="nav-home">Home</a></li>
+      <li><a href="#" class="nav-link" data-page="history" id="nav-history">History</a></li>
+      <li id="nav-admin-item" class="hidden"><a href="#" class="nav-link" data-page="admin" id="nav-admin">Admin Portal</a></li>
+      <li><a href="#" class="nav-link" data-page="contact" id="nav-contact">Contact</a></li>
+      <!-- shown when logged out -->
+      <li id="nav-login-item"><a href="#" class="nav-link" data-page="login" id="nav-login">Sign In</a></li>
+      <!-- shown when logged in -->
+      <li id="nav-user-item" class="hidden">
+        <div class="nav-user-pill">
+          <div class="avatar" id="nav-avatar" aria-hidden="true">?</div>
+          <span id="nav-username"></span>
+        </div>
+      </li>
+      <li id="nav-logout-item" class="hidden">
+        <button class="btn btn-ghost btn-sm" id="logout-btn" aria-label="Log out">Log out</button>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ══ Main Content ════════════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- ── HOME PAGE ─────────────────────────────────────────────────────── -->
+    <section class="page active" id="page-home" aria-label="Home" role="main">
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-badge" aria-label="AI Powered">⚡ AI-Powered Threat Detection</div>
+        <h1>Stop <span>Phishing Attacks</span><br>Before They Strike</h1>
+        <p>Paste any URL or email to instantly analyse it against real-time threat intelligence, VirusTotal, WHOIS data, and advanced NLP detection.</p>
+
+        <!-- URL Scan Card -->
+        <div class="scan-card fade-up" role="region" aria-label="URL Scanner">
+          <p class="section-title">🔗 URL Scanner</p>
+          <form id="scan-form" novalidate>
+            <div class="scan-input-row">
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true">🔗</span>
+                <input id="url-input" type="text" maxlength="2048" autocomplete="off" spellcheck="false"
+                       class="inp" placeholder="https://suspicious-site.example.com/verify"
+                       aria-label="URL to scan" aria-required="true">
+              </div>
+              <button id="scan-btn" type="submit" class="btn btn-primary" aria-label="Analyze this URL">
+                <span id="scan-btn-text">Analyze</span>
+                <span id="scan-spinner" class="spinner hidden" aria-hidden="true"></span>
+              </button>
+            </div>
+            <p id="scan-status" class="status-msg info" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <!-- Feature highlights -->
+        <div class="features-strip" role="list">
+          <div class="feat-card" role="listitem">
+            <div class="feat-icon" aria-hidden="true">🦠</div>
+            <h3>VirusTotal Integration</h3>
+            <p>Cross-references against 70+ security vendor databases in real time.</p>
+          </div>
+          <div class="feat-card" role="listitem">
+            <div class="feat-icon" aria-hidden="true">🕵️</div>
+            <h3>Typosquatting Detection</h3>
+            <p>Fuzzy string matching against 45+ popular brand domains.</p>
+          </div>
+          <div class="feat-card" role="listitem">
+            <div class="feat-icon" aria-hidden="true">📅</div>
+            <h3>WHOIS Domain Age</h3>
+            <p>Newly registered domains (< 30 days) are flagged as high-risk.</p>
+          </div>
+          <div class="feat-card" role="listitem">
+            <div class="feat-icon" aria-hidden="true">📧</div>
+            <h3>Email NLP Analysis</h3>
+            <p>Detects urgency language, SPF/DKIM failures, and embedded URLs.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scan Result -->
+      <div class="page-inner" style="padding-top: 0;">
+        <div class="two-col">
+          <div>
+            <!-- Result Panel -->
+            <div id="result-panel" class="card hidden fade-up" role="region" aria-label="Scan Result" aria-live="polite">
+              <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <p id="r-verdict" class="font-weight-600" style="font-size:1.4rem; font-weight:700;"></p>
+                    <span id="r-chip" class="chip"></span>
+                  </div>
+                  <p id="r-url" class="mono text-sm break-all mt-2" style="color:var(--text-muted)"></p>
+                </div>
+                <div style="text-align:right; flex-shrink:0;">
+                  <span id="r-score" style="font-size:2.8rem; font-weight:700; line-height:1;"></span>
+                  <span class="text-muted">&nbsp;/ 100</span>
+                </div>
+              </div>
+
+              <div class="gauge-track" role="img" aria-label="Risk gauge">
+                <div id="gauge-fill" class="gauge-fill"></div>
+              </div>
+
+              <div class="feature-grid" id="r-features">
+                <div class="feature-tile"><dt>HTTPS</dt><dd id="r-https"></dd></div>
+                <div class="feature-tile"><dt>IP as host</dt><dd id="r-ip"></dd></div>
+                <div class="feature-tile"><dt>"@" in URL</dt><dd id="r-at"></dd></div>
+                <div class="feature-tile"><dt>Subdomains</dt><dd id="r-sub"></dd></div>
+                <div class="feature-tile"><dt>URL length</dt><dd id="r-len"></dd></div>
+                <div class="feature-tile"><dt>Suspicious keywords</dt><dd id="r-kw" style="display:flex; flex-wrap:wrap; gap:4px;"></dd></div>
+              </div>
+
+              <!-- Threat Intelligence -->
+              <hr class="divider">
+              <p class="section-title">🌐 Threat Intelligence</p>
+              <div class="ti-grid" id="ti-grid">
+                <!-- populated by JS -->
+              </div>
+
+              <!-- Signals -->
+              <hr class="divider">
+              <p class="section-title">⚠️ Risk Signals</p>
+              <ul id="r-signals" class="signals-list" aria-label="Risk signals"></ul>
+            </div>
+
+            <!-- Email NLP Scan -->
+            <div class="card mt-4" role="region" aria-label="Email Scanner">
+              <p class="section-title">📧 Email Body Analyser</p>
+              <p class="text-sm text-muted mb-4">Paste an email body (or full raw email with headers) to detect phishing language, SPF/DKIM failures, and embedded URLs.</p>
+              <form id="email-form" novalidate>
+                <div class="form-group">
+                  <label for="email-subject">Subject line (optional)</label>
+                  <input type="text" id="email-subject" class="inp-plain" placeholder="Re: Your account has been suspended" maxlength="998">
+                </div>
+                <div class="form-group">
+                  <label for="email-body">Email body / raw email</label>
+                  <textarea id="email-body" class="inp-plain" rows="6" placeholder="Paste the email content here…" maxlength="10000" aria-required="true"></textarea>
+                </div>
+                <button type="submit" id="email-btn" class="btn btn-primary btn-sm">
+                  <span id="email-btn-text">Analyse Email</span>
+                  <span id="email-spinner" class="spinner hidden" aria-hidden="true"></span>
+                </button>
+                <p id="email-status" class="status-msg info" role="status" aria-live="polite"></p>
+              </form>
+              <div id="email-result" class="hidden mt-4 fade-up" role="region" aria-live="polite" aria-label="Email Analysis Result">
+                <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+                  <div>
+                    <span id="er-verdict" style="font-size:1.1rem; font-weight:700;"></span>
+                    <span id="er-chip" class="chip" style="margin-left:8px;"></span>
+                  </div>
+                  <div>
+                    <span id="er-score" style="font-size:2rem; font-weight:700;"></span>
+                    <span class="text-muted"> / 100</span>
+                  </div>
+                </div>
+                <div class="gauge-track">
+                  <div id="er-gauge" class="gauge-fill"></div>
+                </div>
+
+                <div class="ti-grid mt-3">
+                  <div class="ti-card">
+                    <div class="ti-card-header"><span class="ti-icon">📬</span> SPF</div>
+                    <span id="er-spf">—</span>
+                  </div>
+                  <div class="ti-card">
+                    <div class="ti-card-header"><span class="ti-icon">✍️</span> DKIM</div>
+                    <span id="er-dkim">—</span>
+                  </div>
+                  <div class="ti-card">
+                    <div class="ti-card-header"><span class="ti-icon">🔗</span> URLs found</div>
+                    <span id="er-urls">—</span>
+                  </div>
+                </div>
+
+                <p class="section-title mt-4">⚠️ Detected Signals</p>
+                <ul id="er-signals" class="signals-list"></ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Chat Sidebar -->
+          <div class="chat-pane" role="complementary" aria-label="AI Security Advisor">
+            <div class="chat-header">
+              <h3>🤖 Security Advisor</h3>
+              <p>Powered by Qwen2.5-7B · knows your last 3 scans</p>
+            </div>
+            <div id="chat-log" class="chat-log" aria-live="polite" aria-label="Chat messages">
+              <div class="bubble bubble-ai">Ask me why a link looks risky, what to do if you clicked it, or how to spot phishing emails.</div>
+            </div>
+            <form id="chat-form" class="chat-input-row" novalidate>
+              <label for="chat-input" class="sr-only" style="position:absolute;left:-9999px;">Message</label>
+              <input id="chat-input" type="text" maxlength="500" autocomplete="off"
+                     placeholder="Ask about a link or email…"
+                     class="inp-plain" style="flex:1;" aria-label="Chat message">
+              <button id="chat-btn" type="submit" class="btn btn-primary btn-sm">Send</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Recent Scans -->
+        <div class="card mt-4" role="region" aria-label="Recent scans">
+          <div class="page-header" style="margin-bottom:0; padding-bottom:14px;">
+            <div>
+              <p class="section-title" style="margin-bottom:0;">Recent Scans</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table aria-label="Recent scans table">
+              <thead>
+                <tr>
+                  <th>URL</th><th>Score</th><th>Verdict</th><th>VT</th><th>Domain Age</th><th>When</th>
+                </tr>
+              </thead>
+              <tbody id="history-body"></tbody>
+            </table>
+            <p id="history-empty" class="text-sm text-muted" style="padding:16px;" role="status">No scans yet. Paste a link above to start.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HISTORY PAGE ───────────────────────────────────────────────────── -->
+    <section class="page" id="page-history" aria-label="Scan History">
+      <div class="page-inner">
+        <div class="page-header">
+          <div>
+            <h2>Scan History</h2>
+            <p>All URLs you've scanned, with full threat intelligence details.</p>
+          </div>
+          <div class="flex gap-2 flex-wrap" id="report-btns">
+            <button id="csv-btn" class="btn btn-ghost btn-sm" aria-label="Download CSV report">⬇ CSV Report</button>
+            <button id="pdf-btn" class="btn btn-ghost btn-sm" aria-label="Download PDF report">📄 PDF Report</button>
+          </div>
+        </div>
+
+        <div id="history-auth-warning" class="card card-sm hidden" style="color:var(--warn); margin-bottom:16px;">
+          ⚠ Sign in to save history to your account and download reports.
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table aria-label="Full scan history table">
+              <thead>
+                <tr>
+                  <th>#</th><th>URL</th><th>Score</th><th>Verdict</th>
+                  <th>VirusTotal</th><th>Domain Age</th><th>Brand Risk</th><th>When</th>
+                </tr>
+              </thead>
+              <tbody id="full-history-body"></tbody>
+            </table>
+            <p id="full-history-empty" class="text-sm text-muted" style="padding:16px;" role="status">No scan history yet.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CONTACT PAGE ───────────────────────────────────────────────────── -->
+    <section class="page" id="page-contact" aria-label="Contact">
+      <div class="page-inner">
+        <div class="page-header">
+          <div>
+            <h2>Contact Us</h2>
+            <p>Have a question, bug report, or want to contribute? Reach out.</p>
+          </div>
+        </div>
+
+        <div class="contact-grid">
+          <!-- Contact Info -->
+          <div>
+            <div class="card">
+              <p class="section-title">Get in Touch</p>
+
+              <div class="contact-info-item">
+                <div class="contact-info-icon" aria-hidden="true">📧</div>
+                <div>
+                  <div style="font-weight:600; font-size:.9rem;">Email</div>
+                  <div class="text-muted text-sm">security@tripwire-detector.io</div>
+                </div>
+              </div>
+
+              <div class="contact-info-item">
+                <div class="contact-info-icon" aria-hidden="true">🐛</div>
+                <div>
+                  <div style="font-weight:600; font-size:.9rem;">Bug Reports</div>
+                  <div class="text-muted text-sm">github.com/tripwire/phishing-detector/issues</div>
+                </div>
+              </div>
+
+              <div class="contact-info-item">
+                <div class="contact-info-icon" aria-hidden="true">🔒</div>
+                <div>
+                  <div style="font-weight:600; font-size:.9rem;">Security Disclosures</div>
+                  <div class="text-muted text-sm">security@tripwire-detector.io (PGP preferred)</div>
+                </div>
+              </div>
+
+              <div class="contact-info-item">
+                <div class="contact-info-icon" aria-hidden="true">⏰</div>
+                <div>
+                  <div style="font-weight:600; font-size:.9rem;">Response Time</div>
+                  <div class="text-muted text-sm">Typically within 24-48 hours</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mt-4">
+              <p class="section-title">API & Integrations</p>
+              <p class="text-sm text-muted mb-3">Want to integrate Tripwire into your security pipeline?</p>
+              <div class="card" style="background:var(--bg-base); padding:14px;">
+                <pre class="mono text-sm" style="color:var(--safe); overflow-x:auto;">POST /api/scan
+Content-Type: application/json
+
+{ "url": "https://example.com" }</pre>
+              </div>
+              <p class="text-sm text-muted mt-3">Returns a full risk analysis with VirusTotal, WHOIS, and typosquatting data.</p>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="card">
+            <p class="section-title">Send a Message</p>
+            <form id="contact-form" novalidate>
+              <div class="form-group">
+                <label for="contact-name">Name</label>
+                <input type="text" id="contact-name" class="inp-plain" placeholder="Your name" required>
+              </div>
+              <div class="form-group">
+                <label for="contact-email">Email</label>
+                <input type="email" id="contact-email" class="inp-plain" placeholder="you@example.com" required>
+              </div>
+              <div class="form-group">
+                <label for="contact-subject">Subject</label>
+                <input type="text" id="contact-subject" class="inp-plain" placeholder="What's this about?">
+              </div>
+              <div class="form-group">
+                <label for="contact-message">Message</label>
+                <textarea id="contact-message" class="inp-plain" rows="5"
+                          placeholder="Describe your issue or question…" required></textarea>
+              </div>
+              <button type="submit" id="contact-btn" class="btn btn-primary btn-full">Send Message</button>
+              <p id="contact-status" class="status-msg info mt-2" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── LOGIN PAGE ─────────────────────────────────────────────────────── -->
+    <section class="page" id="page-login" aria-label="Sign In">
+      <div class="auth-center">
+        <div class="auth-box">
+          <div class="auth-logo">
+            <div class="auth-logo-icon" aria-hidden="true">🛡</div>
+            <h2>Sign In to Tripwire</h2>
+            <p>Select role to prefill credentials or sign in manually</p>
+          </div>
+
+          <div class="login-tabs">
+            <button type="button" class="login-tab-btn" id="btn-demo-admin">🛡 Admin Login</button>
+            <button type="button" class="login-tab-btn" id="btn-demo-user">👤 User Login</button>
+          </div>
+
+          <form id="login-form" novalidate aria-label="Login form">
+            <div class="form-group">
+              <label for="login-username">Username</label>
+              <input type="text" id="login-username" class="inp-plain" placeholder="your_username"
+                     autocomplete="username" required>
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" class="inp-plain" placeholder="••••••••••••"
+                     autocomplete="current-password" required>
+            </div>
+            <button type="submit" id="login-btn" class="btn btn-primary btn-full">
+              <span id="login-btn-text">Sign In</span>
+              <span id="login-spinner" class="spinner hidden" aria-hidden="true"></span>
+            </button>
+            <p id="login-status" class="status-msg err mt-2" role="alert" aria-live="assertive"></p>
+          </form>
+
+          <div class="auth-switch">
+            Don't have an account? <a id="go-register" href="#" role="button">Create one</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── REGISTER PAGE ──────────────────────────────────────────────────── -->
+    <section class="page" id="page-register" aria-label="Register">
+      <div class="auth-center">
+        <div class="auth-box">
+          <div class="auth-logo">
+            <div class="auth-logo-icon" aria-hidden="true">🛡</div>
+            <h2>Create Account</h2>
+            <p>Join Tripwire to track your scan history</p>
+          </div>
+
+          <form id="register-form" novalidate aria-label="Registration form">
+            <div class="form-group">
+              <label for="reg-username">Username</label>
+              <input type="text" id="reg-username" class="inp-plain" placeholder="cool_username"
+                     autocomplete="username" minlength="3" maxlength="30" required>
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Email</label>
+              <input type="email" id="reg-email" class="inp-plain" placeholder="you@example.com"
+                     autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label for="reg-password">Password</label>
+              <input type="password" id="reg-password" class="inp-plain" placeholder="Min. 12 chars"
+                     autocomplete="new-password" required>
+              <div id="pw-strength" class="pw-req mt-2">
+                Must contain: uppercase, lowercase, digit, special character (!@#$%… etc.), ≥ 12 characters.
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="reg-confirm">Confirm Password</label>
+              <input type="password" id="reg-confirm" class="inp-plain" placeholder="Repeat password"
+                     autocomplete="new-password" required>
+            </div>
+            <button type="submit" id="reg-btn" class="btn btn-primary btn-full">
+              <span id="reg-btn-text">Create Account</span>
+              <span id="reg-spinner" class="spinner hidden" aria-hidden="true"></span>
+            </button>
+            <p id="reg-status" class="status-msg err mt-2" role="alert" aria-live="assertive"></p>
+          </form>
+
+          <div class="auth-switch">
+            Already have an account? <a id="go-login" href="#" role="button">Sign in</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ADMIN PORTAL PAGE ────────────────────────────────────────────── -->
+    <section class="page" id="page-admin" aria-label="Admin Portal">
+      <div class="page-inner">
+        <div class="page-header">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2>Administrator Control Portal</h2>
+              <span class="admin-badge">Full Access</span>
+            </div>
+            <p>Manage all registered accounts, monitor platform-wide scans, and remove threat logs.</p>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <p class="section-title">👥 Registered Users Management</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="section-title">🌐 Platform-Wide Scan Moderation</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>URL</th><th>Score</th><th>Verdict</th><th>Owner</th><th>When</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-scans-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PROFILE PAGE ───────────────────────────────────────────────────── -->
+    <section class="page" id="page-profile" aria-label="Profile">
+      <div class="page-inner" style="max-width:600px;">
+        <div class="page-header">
+          <div>
+            <h2>My Profile</h2>
+            <p>Manage your account settings.</p>
+          </div>
+        </div>
+
+        <div class="card" style="text-align:center; padding:32px;">
+          <div class="profile-avatar" id="profile-avatar" style="margin: 0 auto;" aria-hidden="true">?</div>
+          <div id="profile-username" style="font-size:1.2rem; font-weight:700; margin-top:8px;"></div>
+          <div id="profile-role" class="chip chip-info" style="margin-top:8px; display:inline-flex;"></div>
+        </div>
+
+        <div class="card mt-4">
+          <p class="section-title">Account Info</p>
+          <div class="info-row">
+            <span>Username</span>
+            <span id="profile-uname">—</span>
+          </div>
+          <div class="info-row">
+            <span>Email</span>
+            <span id="profile-email">—</span>
+          </div>
+          <div class="info-row">
+            <span>Member since</span>
+            <span id="profile-created">—</span>
+          </div>
+          <div class="info-row">
+            <span>Last login</span>
+            <span id="profile-last-login">—</span>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <p class="section-title">Change Password</p>
+          <form id="change-pw-form" novalidate>
+            <div class="form-group">
+              <label for="cp-old">Current password</label>
+              <input type="password" id="cp-old" class="inp-plain" placeholder="Current password" required>
+            </div>
+            <div class="form-group">
+              <label for="cp-new">New password</label>
+              <input type="password" id="cp-new" class="inp-plain" placeholder="Min. 12 chars with upper, lower, digit, special" required>
+            </div>
+            <button type="submit" id="cp-btn" class="btn btn-primary btn-sm">Update Password</button>
+            <p id="cp-status" class="status-msg mt-2" role="alert" aria-live="assertive"></p>
+          </form>
+        </div>
+
+        <div class="card mt-4" style="border-color:rgba(255,87,87,.2);">
+          <p class="section-title" style="color:var(--danger);">Danger Zone</p>
+          <p class="text-sm text-muted mb-3">Logging out will clear your session token.</p>
+          <button id="profile-logout-btn" class="btn btn-danger btn-sm">Log Out</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────────── -->
+  <footer>
+    <p>© 2026 <strong>Tripwire</strong> · AI Phishing Detector · Built with FastAPI + Qwen · 
+       <a href="#" id="footer-contact" role="button">Contact</a> ·
+       <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container" role="alert" aria-live="polite"></div>
+
+<script src="script.js" defer></script>
+</body>
+</html>

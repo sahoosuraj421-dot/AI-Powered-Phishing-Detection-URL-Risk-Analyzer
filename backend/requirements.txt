@@ -1,0 +1,15 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlmodel>=0.0.16
+pydantic[email]>=2.6
+scikit-learn>=1.4
+pandas>=2.2
+requests>=2.31
+python-dotenv>=1.0
+slowapi>=0.1.9
+PyJWT>=2.8
+python-multipart>=0.0.9
+Levenshtein>=0.25
+dnspython>=2.6
+python-whois>=0.9.4
+fpdf2>=2.7
