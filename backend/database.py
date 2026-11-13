@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import SQLModel, Session, create_engine, select
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
@@ -17,7 +17,7 @@ def init_db() -> None:
     
     # Pre-seed default Admin and Demo User if not present
     with Session(engine) as session:
-        admin_user = session.exec(models.select(models.User).where(models.User.username == "admin")).first()
+        admin_user = session.exec(select(models.User).where(models.User.username == "admin")).first()
         if not admin_user:
             admin_user = models.User(
                 username="admin",
@@ -28,7 +28,7 @@ def init_db() -> None:
             )
             session.add(admin_user)
             
-        demo_user = session.exec(models.select(models.User).where(models.User.username == "user")).first()
+        demo_user = session.exec(select(models.User).where(models.User.username == "user")).first()
         if not demo_user:
             demo_user = models.User(
                 username="user",
